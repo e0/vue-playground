@@ -2,7 +2,16 @@
   <div class="hello">
     <h1>{{ msg }}</h1>
     <button v-on:click="load">Load something</button>
-    <p v-if="loaded">{{ loadedContent }}</p>
+    <div id="poll" v-if="loaded">
+      <div v-for="poll in polls">
+        <h2>{{ poll.question }}</h2>
+        <ol>
+          <li v-for="choice in poll.choices">
+            {{ choice.choice }} ({{ choice.votes }})
+          </li>
+        </ol>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -14,22 +23,25 @@ export default {
   data() {
     return {
       loaded: false,
-      loadedContent: 'nah',
+      polls: [],
+      errorMessage: '',
       msg: 'Welcome to Your Vue.js App',
     };
   },
   methods: {
     load() {
-      const endpoint = 'https://raw.githubusercontent.com/e0/dotfiles/master/vimrc';
+      const endpoint = 'https://private-51ed0a-e0.apiary-mock.com/questions';
 
       axios.get(endpoint)
         .then((response) => {
           this.loaded = true;
-          this.loadedContent = response.data;
+          this.errorMessage = '';
+          this.polls = response.data;
         })
         .catch((error) => {
           this.loaded = true;
-          this.loadedContent = error.message;
+          this.errorMessage = error.message;
+          this.polls = [];
         });
     },
   },
@@ -38,6 +50,12 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+#poll {
+  text-align: left;
+  margin: 0 auto;
+  width: 420px;
+}
+
 h1, h2 {
   font-weight: normal;
 }
@@ -48,7 +66,7 @@ ul {
 }
 
 li {
-  display: inline-block;
+  display: block;
   margin: 0 10px;
 }
 
